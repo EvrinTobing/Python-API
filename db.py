@@ -7,7 +7,7 @@ db = path.join(getcwd(), 'database.db')
 class Database:
 
     def __init__(self):
-        self.connection = sqlite3.connect('')
+        self.connection = sqlite3.connect('database.db', check_same_thread=False)
 
     def query(self, q, arg=()):
         cursor = self.connection.cursor()
