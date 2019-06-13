@@ -29,7 +29,7 @@ def homepage():
     return Response(output, status=200, mimetype='application/json')
 
 
-@app.route('/api/train', methods=['POST'])
+@app.route('/api/train', methods=['GET', 'POST'])
 def train():
 
     output = json.dumps({"success": True})
@@ -65,11 +65,33 @@ def train():
 
             created = int(time.time())
 
-            users_id = app.db.insert('INSERT INTO users(name, created) values(?,?)', [name, created])
+            user_id = app.db.insert('INSERT INTO users(name, created) VALUES(?,?)', [name, created])
+
+            if user_id:
+                print("SAVED", name, user_id, created)
+
+                face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(?, ?, ?)', [user_id, filename, created])
+
+                if face_id:
+
+                    print("face saved")
+                    face_data = {"id": face_id, "filename":filename, "created":created}
+                    return_output = json.dumps({"id": user_id, "name": name, "face":[face_data]})
+                    return success_handle(return_output)
+
+                else:
+
+                    print("error while save image")
+                    return error_handle("error save face")
+            else:
+                print("FAILED")
+                return error_handle("Error")
 
         print("Success")
     return success_handle(output)
 
+# @app.route('/api/users/<int:user)id>')
+# def user_profile()
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5003)
