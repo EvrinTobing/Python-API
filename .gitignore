@@ -60,3 +60,4 @@ target/
 saves/
 .idea/
 .vscode
+database\.db\.sqbpro
