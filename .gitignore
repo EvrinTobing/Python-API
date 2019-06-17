@@ -63,3 +63,5 @@ saves/
 database\.db\.sqbpro
 
 venv/
+
+database\.db
