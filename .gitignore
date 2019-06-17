@@ -65,3 +65,5 @@ database\.db\.sqbpro
 venv/
 
 database\.db
+
+*.db
