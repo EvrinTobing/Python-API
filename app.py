@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from flask import Flask, json, Response, request
@@ -8,11 +9,13 @@ from face import Face
 
 app = Flask(__name__)
 
-app.config['file_allowed'] = ['image/png','image/jpeg']
+app.config['file_allowed'] = ['image/png', 'image/jpeg']
 app.config['saves'] = path.join(getcwd(), 'saves')
 app.db = Database()
 app.face = Face(app)
 
+date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
+create = datetime.datetime.now()
 
 def success_handle(output, status=200, mimetype='application/json'):
     return Response(output, status=status, mimetype=mimetype)
@@ -37,14 +40,13 @@ def get_user_by_id(user_id):
             "created": row[6]
         }
         if index == 0:
-            user ={
+            user = {
                 "id": row[0],
                 "name": row[1],
                 "created": row[2],
                 "faces": []
             }
         if 3 in row:
-
             user["faces"].append(face)
         index = index + 1
     if 'id' in user:
@@ -67,8 +69,7 @@ def homepage():
 
 @app.route('/api/train', methods=['GET', 'POST'])
 def train():
-
-    output = json.dumps({"success": True})
+    # output = json.dumps({"success": True})
 
     if 'file' not in request.files:
 
@@ -79,7 +80,6 @@ def train():
 
         print("File Req", request.files)
         file = request.files['file']
-
         if file.mimetype not in app.config['file_allowed']:
 
             print("file extension not allowed")
@@ -93,26 +93,27 @@ def train():
 
             print("file allowed and save in", app.config['saves'])
 
-            filename = secure_filename(file.filename)
+            filename = secure_filename(date + ".jpg")
             known_saves = path.join(app.config['saves'], 'known')
             file.save(path.join(known_saves, filename))
 
             print("new filename is", filename)
 
-            created = int(time.time())
+            created = create
 
             user_id = app.db.insert('INSERT INTO users(name, created) VALUES(?,?)', [name, created])
 
             if user_id:
                 print("SAVED", name, user_id, created)
 
-                face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(?, ?, ?)', [user_id, filename, created])
+                face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(? ,?, ?)',
+                                        [user_id, filename, created])
 
                 if face_id:
 
                     print("face saved")
-                    face_data = {"id": face_id, "filename":filename, "created":created}
-                    return_output = json.dumps({"id": user_id, "name": name, "face":[face_data]})
+                    face_data = {"id": face_id, "filename": filename, "created": created}
+                    return_output = json.dumps({"id": user_id, "name": name, "face": [face_data]})
                     return success_handle(return_output)
 
                 else:
@@ -124,12 +125,11 @@ def train():
                 return error_handle("Error")
 
         print("Success")
-    return success_handle(output)
+    return success_handle(json.dumps({"success": True}))
 
 
 @app.route('/api/users/<int:user_id>', methods=['GET', 'DELETE'])
 def user_profile(user_id):
-
     if request.method == 'GET':
         user = get_user_by_id(user_id)
 
@@ -138,14 +138,12 @@ def user_profile(user_id):
         else:
             return error_handle("User Not Found")
     if request.method == 'DELETE':
-
         delete_user_by_id(user_id)
         return success_handle(json.dumps({"deleted": True}))
 
 
 @app.route('/api/recognize', methods=['POST'])
 def recognition():
-
     if 'file' not in request.files:
         return error_handle("image require")
     else:
@@ -153,7 +151,7 @@ def recognition():
         if file.mimetype not in app.config['file_allowed']:
             return error_handle("File not Allowed")
         else:
-            filename = secure_filename(file.filename)
+            filename = secure_filename(date + ".jpg")
             unknown_saves = path.join(app.config['saves'], 'unknown')
             file_path = path.join(unknown_saves, filename)
             file.save(file_path)
@@ -161,13 +159,11 @@ def recognition():
             user_id = app.face.recognize(filename)
             if user_id:
                 user = get_user_by_id(user_id)
-                message = {"message": "Found {0}".format(user['name']), "user": user}
+                message = {"message": "Found {0}".format(user["name"]), "user": user}
                 return success_handle(json.dumps(message))
             else:
                 return error_handle("Sorry Can't Found any people match, try again")
 
-    return success_handle(json.dumps({"filename_to_compare_is": filename}))
-
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5050)
