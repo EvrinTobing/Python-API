@@ -43,3 +43,14 @@ class Database:
         self.connection.commit()
         return result
 
+    def save(self, q, arg=()):
+        cursor = self.connection.cursor()
+
+        result = cursor.execute(q, arg)
+
+        self.connection.commit()
+
+        self.connection.close()
+
+        return result
+
