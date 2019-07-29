@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
+from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
