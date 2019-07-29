@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
+from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
@@ -20,7 +21,6 @@ create = datetime.datetime.now()
 
 
 def file_allowed():
-
     if 'file' not in request.files:
         print("Image required")
         return error_handle("image require")
@@ -131,7 +131,7 @@ def recommendation():
         return get_recommendation_for_user(user_id)
     else:
         print("New customer")
-        saved(file)
+        save_new_face(file)
 
         return get_favourites()
 
@@ -144,6 +144,7 @@ def recognition():
     file_allowed()
     saved(file)
     usered = app.face.recognize(file)
+    # encoding = app.face.encoding(file)
     if usered:
 
         user = get_user_by_id(usered)
@@ -156,7 +157,6 @@ def recognition():
         users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
 
         app.face.store_new(file)
-
 
         if users:
             print("SAVED", users, create)
