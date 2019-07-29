@@ -56,20 +56,19 @@ class Face:
 
         results = face_recognition.compare_faces(self.known_encoding_faces, unknown_encoding_images)
 
-        index_key = 0
+        print(results)
 
-        for matched in results:
+        if len(results) == 0:
+            return
 
-            if matched:
-                user_id = self.load_user_by_index_key(index_key)
+        face_index = [i for i, x in enumerate(results) if x]
 
-                print("found user id: ", user_id)
+        if len(face_index) == 0:
+            return
 
-                return user_id
+        return face_index[0] + 1
 
-            index_key = index_key + 1
 
-        return None
 
     def encoding(self, file_stream):
         unknown_image = face_recognition.load_image_file(file_stream)

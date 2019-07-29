@@ -34,10 +34,26 @@ def file_allowed():
 
 
 def saved(file):
-    filename
     known_saves = path.join(app.config['saves'], 'known')
     file_path = path.join(known_saves, filename)
     file.save(file_path)
+
+
+def save_new_face(file):
+
+    users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
+    # filename = secure_filename(str(users) + ".jpg")
+    date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
+    filename = secure_filename(date + ".jpg")
+
+    face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(? ,?, ?)',
+                            [users, filename, create])
+
+    known_saves = path.join(app.config['saves'], 'known')
+    file_path = path.join(known_saves, filename)
+    file.save(file_path)
+
+    app.face.store_new(file)
 
 
 def success_handle(output, status=200, mimetype='application/json'):
@@ -83,6 +99,41 @@ def homepage():
 
     output = json.dumps({"api": '1.0'})
     return Response(output, status=200, mimetype='application/json')
+
+
+def get_recommendation_for_user(user_id):
+    message = [
+        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000},
+        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000}
+    ]
+
+    return json.dumps(message)
+
+
+def get_favourites():
+    message = [
+        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000},
+        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000}
+    ]
+
+    return json.dumps(message)
+
+
+@app.route('/api/recommendation', methods=['POST'])
+def recommendation():
+    file_allowed()
+    file = request.files['file']
+    user_id = app.face.recognize(file)
+    user = get_user_by_id(user_id)
+
+    if user:
+        print("Existing customer")
+        return get_recommendation_for_user(user_id)
+    else:
+        print("New customer")
+        save_new_face(file)
+
+        return get_favourites()
 
 
 @app.route('/api/recognize', methods=['POST'])
