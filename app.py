@@ -20,7 +20,6 @@ create = datetime.datetime.now()
 
 
 def file_allowed():
-    json.dumps(request)
 
     if 'file' not in request.files:
         print("Image required")
