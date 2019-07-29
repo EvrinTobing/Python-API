@@ -51,6 +51,7 @@ def save_new_face(file):
 
     known_saves = path.join(app.config['saves'], 'known')
     file_path = path.join(known_saves, filename)
+    file.seek(0)
     file.save(file_path)
 
     app.face.store_new(file)
@@ -123,6 +124,7 @@ def get_favourites():
 def recommendation():
     file_allowed()
     file = request.files['file']
+
     user_id = app.face.recognize(file)
     user = get_user_by_id(user_id)
 
@@ -142,7 +144,7 @@ def recognition():
     filename = secure_filename(date + ".jpg")
     file = request.files['file']
     file_allowed()
-    saved(file)
+
     usered = app.face.recognize(file)
     # encoding = app.face.encoding(file)
     if usered:
