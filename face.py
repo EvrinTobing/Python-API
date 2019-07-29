@@ -1,6 +1,6 @@
 import face_recognition
 from os import path
-# import numpy as np
+import numpy as np
 
 faces_to_compare = []
 filenames_to_compare = []
@@ -52,24 +52,34 @@ class Face:
             self.face_user_keys['{0}'.format(index_key_string)] = user_id
 
     def recognize(self, file_stream):
+        file_stream.seek(0)
         unknown_image = face_recognition.load_image_file(file_stream)
         unknown_encoding_images = face_recognition.face_encodings(unknown_image)[0]
 
-        results = face_recognition.compare_faces(self.known_encoding_faces, unknown_encoding_images)
+        match_results = face_recognition.face_distance(self.known_encoding_faces, unknown_encoding_images)
 
-        print(results)
+        if len(match_results) == 0:
+            return -1
 
-        if len(results) == 0:
-            return
+        minIdx = np.argmin(match_results)
 
-        face_index = [i for i, x in enumerate(results) if x]
+        print(minIdx)
 
-        if len(face_index) == 0:
-            return
+        minValue = np.min(match_results)
 
-        return face_index[0] + 1
+        # for i in range(len(match_results)):
+        #     if match_results[i]:
+        #         name_found = filenames_to_compare[i]
+        #         print(name_found + " " + str(match_results[i]))
+        print(minValue)
+
+        if minValue > 0.5:
+            return -1
+
+        return minIdx + 1
 
     def store_new(self, file_stream):
+        file_stream.seek(0)
         unknown_image = face_recognition.load_image_file(file_stream)
         unknown_encoding_images = face_recognition.face_encodings(unknown_image)[0]
         self.known_encoding_faces.append(unknown_encoding_images)

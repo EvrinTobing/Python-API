@@ -66,11 +66,16 @@ def error_handle(error_message, status=500, mimetype='application/json'):
 
 
 def get_user_by_id(user_id):
+    user_id = str(user_id)  
     user = {}
 
     results = app.db.select('SELECT users.id, users.created, faces.id, faces.user_id, faces.filename, '
-                            'faces.created FROM users LEFT JOIN faces ON faces.user_id WHERE users.id = ?', [user_id])
+                            'faces.created FROM users INNER JOIN faces ON faces.user_id = users.id WHERE users.id = ?', [user_id])
+
     index = 0
+
+    # print("find " + len(results))
+
     for row in results:
         print(row)
         face = {
@@ -91,6 +96,7 @@ def get_user_by_id(user_id):
         index = index + 1
     if 'id' in user:
         return user
+
     return None
 
 
