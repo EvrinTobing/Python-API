@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
-from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
@@ -19,10 +18,10 @@ app.face = Face(app)
 date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 create = datetime.datetime.now()
 
-filename = secure_filename(date + ".jpg")
-
 
 def file_allowed():
+    json.dumps(request)
+
     if 'file' not in request.files:
         print("Image required")
         return error_handle("image require")
@@ -35,6 +34,8 @@ def file_allowed():
 
 
 def saved(file):
+    date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
+    filename = secure_filename(date + ".jpg")
     known_saves = path.join(app.config['saves'], 'known')
     file_path = path.join(known_saves, filename)
     file.save(file_path)
@@ -43,9 +44,8 @@ def saved(file):
 def save_new_face(file):
 
     users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
-    # filename = secure_filename(str(users) + ".jpg")
-    date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
-    filename = secure_filename(date + ".jpg")
+    now = str(users)
+    filename = secure_filename(now + ".jpg")
 
     face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(? ,?, ?)',
                             [users, filename, create])
@@ -132,18 +132,19 @@ def recommendation():
         return get_recommendation_for_user(user_id)
     else:
         print("New customer")
-        save_new_face(file)
+        saved(file)
 
         return get_favourites()
 
 
 @app.route('/api/recognize', methods=['POST'])
 def recognition():
+    date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
+    filename = secure_filename(date + ".jpg")
     file = request.files['file']
     file_allowed()
     saved(file)
     usered = app.face.recognize(file)
-    # encoding = app.face.encoding(file)
     if usered:
 
         user = get_user_by_id(usered)
@@ -156,6 +157,7 @@ def recognition():
         users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
 
         app.face.store_new(file)
+
 
         if users:
             print("SAVED", users, create)

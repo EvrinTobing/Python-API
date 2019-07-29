@@ -6,6 +6,7 @@ faces_to_compare = []
 filenames_to_compare = []
 
 
+
 class Face:
     def __init__(self, app):
         self.saves = app.config["saves"]
@@ -67,23 +68,6 @@ class Face:
             return
 
         return face_index[0] + 1
-
-
-
-    def encoding(self, file_stream):
-        unknown_image = face_recognition.load_image_file(file_stream)
-        unknown_encoding_images = face_recognition.face_encodings(unknown_image)[0]
-        'mugshot'
-        unknown_encoding_string="("
-
-        for distance in  unknown_encoding_images:
-            unknown_encoding_string+=str(distance)
-            unknown_encoding_string+=str(",")
-
-        unknown_encoding_string = unknown_encoding_string[:-1]
-        unknown_encoding_string += str(")")
-
-        return None
 
     def store_new(self, file_stream):
         unknown_image = face_recognition.load_image_file(file_stream)
