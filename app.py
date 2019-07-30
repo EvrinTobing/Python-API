@@ -126,7 +126,7 @@ def get_favourites():
 
 
 @app. route('/rec', methods=['GET'])
-def get_recomendation():
+def get_recommendation_for_user(user_id=None):
     user_id = request.args.get('user_id')
 
     data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
@@ -134,6 +134,12 @@ def get_recomendation():
     resp = jsonify(data)
     print(resp)
     return resp
+
+
+# @app.route('/api/add', methods=['POST'])
+# def insert_product:
+#
+#     return None
 
 
 @app.route('/api/recommendation', methods=['POST'])
