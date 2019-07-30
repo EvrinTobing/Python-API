@@ -119,8 +119,8 @@ def get_recommendation_for_user(user_id):
 
 def get_favourites():
     message = [
-        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000, "images": "/static/images/kopi.jpeg"},
-        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000, "images": "/static/images/kopi.jpeg"}
+        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000, "images": "static/images/kopi.jpeg"},
+        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
     ]
 
     return json.dumps(message)
