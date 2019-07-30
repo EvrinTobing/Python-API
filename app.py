@@ -110,8 +110,8 @@ def homepage():
 
 def get_recommendation_for_user(user_id):
     message = [
-        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "/static/images/kopi.jpeg"},
-        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "/static/images/kopi.jpeg"}
+        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "static/images/kopi.jpeg"},
+        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
     ]
 
     return json.dumps(message)
