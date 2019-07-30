@@ -139,15 +139,16 @@ def get_recommendation_for_user(user_id=None):
     return resp
 
 
-# @app.route('/api/add', methods=['POST'])
-# def insert_product():
-#     products = request.get_json()
-#
-#     return insert_data(products)
-#
-#
-# def insert_data(products):
-#     data = app.db.insert('INSERT INTO catalogs(nama, description, harga, image) VALUES(?,?,?,?)', (products['nama'], products['description', products['harga'], products['image']))
+@app.route('/api/products', methods=['POST'])
+def insert_product():
+    products = request.get_json()
+
+    return insert_data(products)
+
+
+def insert_data(products):
+    data = app.db.insert('INSERT INTO catalogs(nama, description, harga, image) VALUES(?,?,?,?)', (products['name'], products['description'], products['price'], products['image']))
+    return json.dumps("ok")
 
 
 @app.route('/api/recommendation', methods=['POST'])
