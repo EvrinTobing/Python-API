@@ -1,12 +1,11 @@
 import datetime
 
 from flask_socketio import SocketIO
-from flask import Flask, json, Response, request
+from flask import Flask, json, Response, request, jsonify
 from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
-from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
@@ -17,7 +16,6 @@ app.db = Database()
 app.face = Face(app)
 
 date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
-create = datetime.datetime.now()
 
 
 def file_allowed():
@@ -41,6 +39,7 @@ def saved(file):
 
 
 def save_new_face(file):
+    create = datetime.datetime.now()
 
     users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
     now = str(users)
@@ -117,13 +116,24 @@ def get_recommendation_for_user(user_id):
     return json.dumps(message)
 
 
+@app. route('/fav', methods=['GET'])
 def get_favourites():
-    message = [
-        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000, "images": "static/images/kopi.jpeg"},
-        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
-    ]
+    data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
 
-    return json.dumps(message)
+    resp = jsonify(data)
+    print(resp)
+    return resp
+
+
+@app. route('/rec', methods=['GET'])
+def get_favourites():
+    user_id = request.args.get('user_id')
+
+    data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
+
+    resp = jsonify(data)
+    print(resp)
+    return resp
 
 
 @app.route('/api/recommendation', methods=['POST'])
@@ -142,6 +152,21 @@ def recommendation():
         save_new_face(file)
 
         return get_favourites()
+
+
+@app.route('/api/order',methods=['POST'])
+def order():
+    data = request.get_json()
+    # product_id =
+    return order_data(data)
+
+
+def order_data(data):
+    created = datetime.datetime.now()
+    result = app.db.insert('INSERT INTO orders(id_catalog, id_user, jumlah, total_harga, '
+                           'id_corp, id_tenant, id_device, created) VALUES (?,?,?,?,?,?,?,?)',
+                           (data['catalog_id'], data['user_id'], data['quantity'], data['total_amount'], data['corp_id'], data['tenant_id'], data['device_id'], created))
+    return success_handle(json.dumps("ok"))
 
 
 if __name__ == '__main__':

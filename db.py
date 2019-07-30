@@ -33,7 +33,10 @@ class Database:
     def select(self, q, arg=()):
         cursor = self.connection.cursor()
 
-        return cursor.execute(q, arg)
+        cursor.execute(q, arg)
+        rows = cursor.fetchall()
+
+        return rows
 
     def delete(self, q,arg=()):
         cursor = self.connection.cursor()
