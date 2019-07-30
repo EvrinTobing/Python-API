@@ -129,17 +129,25 @@ def get_favourites():
 def get_recommendation_for_user(user_id=None):
     user_id = request.args.get('user_id')
 
-    data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
+    data = app.db.select('select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
+    results = []
 
-    resp = jsonify(data)
+    for d in data:
+        results.append({"id": d[0], "name": d[1], "description": d[2], "price": d[3], "images": d[4]})
+    resp = json.dumps(results)
     print(resp)
     return resp
 
 
 # @app.route('/api/add', methods=['POST'])
-# def insert_product:
+# def insert_product():
+#     products = request.get_json()
 #
-#     return None
+#     return insert_data(products)
+#
+#
+# def insert_data(products):
+#     data = app.db.insert('INSERT INTO catalogs(nama, description, harga, image) VALUES(?,?,?,?)', (products['nama'], products['description', products['harga'], products['image']))
 
 
 @app.route('/api/recommendation', methods=['POST'])
