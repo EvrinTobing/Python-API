@@ -66,7 +66,7 @@ def error_handle(error_message, status=500, mimetype='application/json'):
 
 
 def get_user_by_id(user_id):
-    user_id = str(user_id)  
+    user_id = str(user_id)
     user = {}
 
     results = app.db.select('SELECT users.id, users.created, faces.id, faces.user_id, faces.filename, '
@@ -110,8 +110,8 @@ def homepage():
 
 def get_recommendation_for_user(user_id):
     message = [
-        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000},
-        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000}
+        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "/static/images/kopi.jpeg"},
+        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "/static/images/kopi.jpeg"}
     ]
 
     return json.dumps(message)
@@ -119,8 +119,8 @@ def get_recommendation_for_user(user_id):
 
 def get_favourites():
     message = [
-        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000},
-        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000}
+        {"id": 3, "name": "Chocolate", "description": "good drik", "price": 90000, "images": "/static/images/kopi.jpeg"},
+        {"id": 4, "name": "Tea", "description": "good coffe", "price": 91000, "images": "/static/images/kopi.jpeg"}
     ]
 
     return json.dumps(message)
@@ -142,50 +142,6 @@ def recommendation():
         save_new_face(file)
 
         return get_favourites()
-
-
-@app.route('/api/recognize', methods=['POST'])
-def recognition():
-    date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
-    filename = secure_filename(date + ".jpg")
-    file = request.files['file']
-    file_allowed()
-
-    usered = app.face.recognize(file)
-    # encoding = app.face.encoding(file)
-    if usered:
-
-        user = get_user_by_id(usered)
-        message = {"message": "Found {0}".format(user["id"]), "user": user}
-        return success_handle(json.dumps(message))
-    else:
-
-        print("new filename is", filename)
-
-        users = app.db.insert('INSERT INTO users(created) VALUES(?)', [create])
-
-        app.face.store_new(file)
-
-        if users:
-            print("SAVED", users, create)
-            face_id = app.db.insert('INSERT INTO faces(user_id, filename, created) VALUES(? ,?, ?)',
-                                            [users, filename, create])
-            # encode_id = app.db.save('INSERT INTO face_encoding(user_id, encode) VALUES(?, ?)', [users, encoding])
-            #
-            # if encode_id:
-            #     print("success")
-            # return success_handle(json.dumps("success"))
-            if face_id:
-                print("face saved")
-                face_data = {"id": face_id, "filename": filename, "created": create}
-                return_output = json.dumps({"id": users, "face": [face_data]})
-                return success_handle(return_output)
-            else:
-                print("error while save image")
-                return error_handle("error save face")
-        else:
-            print("Failed")
-            return error_handle("Error")
 
 
 if __name__ == '__main__':
