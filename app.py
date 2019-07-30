@@ -118,18 +118,20 @@ def homepage():
 
 @app. route('/fav', methods=['GET'])
 def get_favourites():
-    data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
-
-    resp = jsonify(data)
+    data = app.db.select('select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama ORDER BY (count(*)) desc LIMIT 3')
+    results = []
+    for d in data:
+        results.append({"id": d[0], "name": d[1], "description": d[2], "price": d[3], "images": d[4]})
+    resp = json.dumps(results)
     print(resp)
     return resp
 
 
 @app. route('/rec', methods=['GET'])
-def get_recommendation_for_user(user_id=None):
+def get_recommendation_for_user(user_id = None):
     user_id = request.args.get('user_id')
 
-    data = app.db.select('select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
+    data = app.db.select("select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog where orders.id_user = '"+ user_id +"'GROUP BY catalogs.nama ORDER BY (Count(*)) DESC LIMIT 1")
     results = []
 
     for d in data:
