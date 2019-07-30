@@ -107,13 +107,13 @@ def homepage():
     return Response(output, status=200, mimetype='application/json')
 
 
-def get_recommendation_for_user(user_id):
-    message = [
-        {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "static/images/kopi.jpeg"},
-        {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
-    ]
-
-    return json.dumps(message)
+# def get_recommendation_for_user(user_id):
+#     message = [
+#         {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "static/images/kopi.jpeg"},
+#         {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
+#     ]
+#
+#     return json.dumps(message)
 
 
 @app. route('/fav', methods=['GET'])
@@ -126,7 +126,7 @@ def get_favourites():
 
 
 @app. route('/rec', methods=['GET'])
-def get_favourites():
+def get_recomendation():
     user_id = request.args.get('user_id')
 
     data = app.db.select('select catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama')
