@@ -129,16 +129,20 @@ def get_favourites():
 
 @app. route('/rec', methods=['GET'])
 def get_recommendation_for_user(user_id = None):
-    user_id = request.args.get('user_id')
+    # user_id = request.args.get('user_id')
 
-    data = app.db.select("select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog where orders.id_user = '"+ user_id +"'GROUP BY catalogs.nama ORDER BY (Count(*)) DESC LIMIT 3")
+    data = app.db.select("select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog where orders.id_user = '"+ str(user_id) +"'GROUP BY catalogs.nama ORDER BY (Count(*)) DESC LIMIT 3")
     results = []
 
     for d in data:
         results.append({"id": d[0], "name": d[1], "description": d[2], "price": d[3], "images": d[4]})
-    resp = json.dumps(results)
-    print(resp)
-    return resp
+
+    if len(results) == 0:
+        return get_favourites()
+    else:
+        resp = json.dumps(results)
+        print(resp)
+        return resp
 
 
 @app.route('/api/products', methods=['POST'])
