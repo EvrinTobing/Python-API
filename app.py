@@ -12,6 +12,7 @@ app.config['SECRET_KEY'] = 'asdewq123'
 socketio = SocketIO(app)
 app.config['file_allowed'] = ['image/png', 'image/jpeg']
 app.config['saves'] = path.join(getcwd(), 'saves')
+app.config['static'] = path.join(getcwd(), 'static')
 app.db = Database()
 app.face = Face(app)
 
@@ -107,15 +108,6 @@ def homepage():
     return Response(output, status=200, mimetype='application/json')
 
 
-# def get_recommendation_for_user(user_id):
-#     message = [
-#         {"id": 1, "name": "Americano", "description": "good coffe", "price": 90000, "images": "static/images/kopi.jpeg"},
-#         {"id": 2, "name": "Caramel", "description": "good coffe", "price": 91000, "images": "static/images/kopi.jpeg"}
-#     ]
-#
-#     return json.dumps(message)
-
-
 @app. route('/fav', methods=['GET'])
 def get_favourites():
     data = app.db.select('select catalogs.id, catalogs.nama, catalogs.description, catalogs.harga, catalogs.image from catalogs inner join orders on catalogs.id = orders.id_catalog GROUP BY nama ORDER BY (count(*)) desc LIMIT 3')
@@ -147,13 +139,19 @@ def get_recommendation_for_user(user_id = None):
 
 @app.route('/api/products', methods=['POST'])
 def insert_product():
-    products = request.get_json()
+    file = request.files['images']
+    file_allowed()
 
-    return insert_data(products)
+    products = request.form
+    data = app.db.insert('INSERT INTO catalogs(nama, description, harga, image) VALUES(?,?,?,?)', (products['name'], products['description'], products['price'], ""))
+    filename = secure_filename(str(data) + ".jpg")
+    file_save = path.join(app.config['static'], 'images')
+    file_path = path.join(file_save, filename)
+    file.save(file_path)
 
+    file_path = '/static/images/' + filename
 
-def insert_data(products):
-    data = app.db.insert('INSERT INTO catalogs(nama, description, harga, image) VALUES(?,?,?,?)', (products['name'], products['description'], products['price'], products['image']))
+    product = app.db.update("UPDATE catalogs SET image ='"+str(file_path)+"' WHERE id = "+str(data))
     return json.dumps("ok")
 
 
