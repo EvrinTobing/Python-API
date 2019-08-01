@@ -57,3 +57,17 @@ class Database:
 
         return result
 
+    def update(self, q, arg=()):
+        cursor = self.connection.cursor()
+
+        print(q)
+
+
+        cursor.execute(q, arg)
+
+        self.connection.commit()
+
+        result = cursor.lastrowid
+        cursor.close()
+
+        return result
