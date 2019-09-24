@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
-from Aru_py import Aruco
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
@@ -16,7 +15,7 @@ app.config['saves'] = path.join(getcwd(), 'saves')
 app.config['static'] = path.join(getcwd(), 'static')
 app.db = Database()
 app.face = Face(app)
-app.Aru_py = Aruco(app)
+# app.Aru_py = Aruco(app)
 
 date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 
@@ -208,12 +207,12 @@ def order_data(data):
     return success_handle(json.dumps("ok"))
 
 
-@app.route('/aruco', methods=['POST'])
-def known():
-    file_allowed()
-    file = request.files['file']
+# @app.route('/aruco', methods=['POST'])
+# def known():
+#     file_allowed()
+#     file = request.files['file']
 
-    mark = app.Aru_py.marker(file)
+#     mark = app.Aru_py.marker(file)
 
 
 if __name__ == '__main__':
