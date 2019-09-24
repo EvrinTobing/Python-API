@@ -2,7 +2,7 @@ import face_recognition
 from os import path
 import numpy as np
 from PIL import Image
-import cv2
+# import cv2
 
 faces_to_compare = []
 filenames_to_compare = []
