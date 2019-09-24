@@ -1,11 +1,12 @@
 import datetime
 
 from flask_socketio import SocketIO
-from flask import Flask, json, Response, request, jsonify
+from flask import Flask, json, Response, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from os import path, getcwd
 from db import Database
 from face import Face
+from Aru_py import Aruco
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asdewq123'
@@ -15,6 +16,7 @@ app.config['saves'] = path.join(getcwd(), 'saves')
 app.config['static'] = path.join(getcwd(), 'static')
 app.db = Database()
 app.face = Face(app)
+app.Aru_py = Aruco(app)
 
 date = datetime.datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 
@@ -107,6 +109,16 @@ def homepage():
     output = json.dumps({"api": '1.0'})
     return Response(output, status=200, mimetype='application/json')
 
+@app.route('/loc', methods=['POST'])
+def loc():
+    file = request.files['file']
+    file_allowed()
+    lokasi = app.face.face_locate(file)
+    print("ok")
+    result = json.dumps(lokasi)
+    return result
+
+
 
 @app. route('/fav', methods=['GET'])
 def get_favourites():
@@ -127,12 +139,12 @@ def get_recommendation_for_user(user_id = None):
     results = []
 
     for d in data:
-        results.append({"id": d[0], "name": d[1], "description": d[2], "price": d[3], "images": d[4]})
+        rec = results.append({"id": d[0], "name": d[1], "description": d[2], "price": d[3], "images": d[4]})
 
     if len(results) == 0:
         return get_favourites()
     else:
-        resp = json.dumps(results)
+        resp = json.dumps(rec)
         print(resp)
         return resp
 
@@ -155,7 +167,7 @@ def insert_product():
     return json.dumps("ok")
 
 
-@app.route('/api/recommendation', methods=['POST'])
+@app.route('/Face_rec', methods=['POST' ,'GET'])
 def recommendation():
     file_allowed()
     file = request.files['file']
@@ -164,14 +176,22 @@ def recommendation():
     user = get_user_by_id(user_id)
 
     if user:
-        print("Existing customer")
+        print("Existing customer; id = {}".format(user_id) )
+        # images()
         return get_recommendation_for_user(user_id)
     else:
         print("New customer")
         save_new_face(file)
-
         return get_favourites()
 
+def images():
+    file = request.files['file']
+    user_id = app.face.recognize(file)
+    file_name = str(user_id)
+    file_names = secure_filename(file_name+ ".jpg")
+    known_saves = path.join(app.config['saves'], 'known')
+    file_path = path.join(known_saves, file_names)
+    return send_file(file_path, mimetype='image/jpeg')
 
 @app.route('/api/order',methods=['POST'])
 def order():
@@ -186,6 +206,14 @@ def order_data(data):
                            'id_corp, id_tenant, id_device, created) VALUES (?,?,?,?,?,?,?,?)',
                            (data['catalog_id'], data['user_id'], data['quantity'], data['total_amount'], data['corp_id'], data['tenant_id'], data['device_id'], created))
     return success_handle(json.dumps("ok"))
+
+
+@app.route('/aruco', methods=['POST'])
+def known():
+    file_allowed()
+    file = request.files['file']
+
+    mark = app.Aru_py.marker(file)
 
 
 if __name__ == '__main__':

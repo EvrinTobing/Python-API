@@ -57,10 +57,9 @@ docs/_build/
 # PyBuilder
 target/
 
-saves/
 .idea/
 .vscode
-database\.db\.sqbpro
+
 
 venv/
 
