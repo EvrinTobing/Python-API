@@ -166,7 +166,7 @@ def insert_product():
     return json.dumps("ok")
 
 
-@app.route('/Face_rec', methods=['POST' ,'GET'])
+@app.route('/Face_rec', methods=['POST'])
 def recommendation():
     file_allowed()
     file = request.files['file']
@@ -177,11 +177,11 @@ def recommendation():
     if user:
         print("Existing customer; id = {}".format(user_id) )
         # images()
-        return get_recommendation_for_user(user_id)
+        # return get_recommendation_for_user(user_id)
     else:
         print("New customer")
         save_new_face(file)
-        return get_favourites()
+        # return get_favourites()
 
 def images():
     file = request.files['file']
