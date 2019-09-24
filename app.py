@@ -176,12 +176,13 @@ def recommendation():
 
     if user:
         print("Existing customer; id = {}".format(user_id) )
-        # images()
-        # return get_recommendation_for_user(user_id)
+        
+        return get_recommendation_for_user(user_id)
     else:
         print("New customer")
         save_new_face(file)
-        # return get_favourites()
+    
+        return get_favourites()
 
 def images():
     file = request.files['file']
